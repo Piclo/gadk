@@ -95,7 +95,7 @@ A job has several options to specify:
 job. For instance, `"github.ref == 'refs/heads/master'"` would only run the job when the
 current branch is master. By default this condition is empty to always run the job.
 * Which container to run the job on: `Job(runs_on="...")` specifies the name of the container.
-By default this is `ubuntu-18.04`.
+By default this is `ubuntu-latest`.
 * Which steps to run: `Job(steps=[...])` specifies the steps to execute for this job.
 Each step must be a `RunStep` or `UsesStep` instance or subclass thereof. By default `gadk`
 adds a checkout v2 step and prepends it to the list of steps. This is a useful
@@ -118,7 +118,7 @@ class MyWorkflow(Workflow):
         self.jobs["test"] = Job(
             steps=[RunStep("pytest"), RunStep("mypy")],  # Run 2 shell commands, one after the other.
             # condition=""  # No condition specified to run always.
-            # runs_on="ubuntu-18.04"  # Run on the default container as specified by gadk.
+            # runs_on="ubuntu-latest"  # Run on the default container as specified by gadk.
             env={"PYTHONPATH": "."},  # Add 1 additional environment variable.
             # needs=None  # No other jobs need to be executed before this job.
             # default_checkout=True   # Prepend an additional step to checkout the repository.

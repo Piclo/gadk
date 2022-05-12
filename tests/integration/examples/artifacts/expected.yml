@@ -3,7 +3,7 @@ name: my service workflow
 'on': {}
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - run: make build
@@ -12,7 +12,7 @@ jobs:
         name: code-archive
         path: build/code.zip
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions/download-artifact@v2
@@ -20,4 +20,3 @@ jobs:
         name: code-archive
         path: build/code.zip
     - run: scp build/code.zip
-

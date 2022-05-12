@@ -145,7 +145,7 @@ class Job(Yamlable):
         self,
         *,
         condition: str = "",
-        runs_on: str = "ubuntu-18.04",
+        runs_on: str = "ubuntu-latest",
         steps: Optional[List[Step]] = None,
         needs: Optional[List[str]] = None,
         env: Optional[EnvVars] = None,
