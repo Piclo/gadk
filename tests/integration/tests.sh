@@ -15,20 +15,12 @@ errors_filename="errors-${python_version}.log"
 
 passed=0
 
-function trim() {
-  xargs echo -n
-}
-
 for test_scenario in tests/integration/examples/*
 do
   cd "${test_scenario}"
 
-  set +e
-  gadk --print 1> "${actual_filename}" 2> "${errors_filename}"
-  set -e
-
   # Confirm that there are no errors.
-  if [[ $(wc -l "${errors_filename}" | trim) == "0 ${errors_filename}" ]]
+  if gadk --print > "${actual_filename}"
   then
     echo "No errors in ${test_scenario}"
   else
@@ -40,7 +32,7 @@ do
   fi
 
   # Confirm that actual.yml is not empty.
-  if [[ $(wc -l "${actual_filename}" | trim) == "0 ${actual_filename}" ]]
+  if ! [[ -s "${actual_filename}" ]]
   then
     echo "${test_scenario} seems to be WIP!"
     passed=1
