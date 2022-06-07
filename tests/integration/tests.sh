@@ -12,7 +12,6 @@ set -e
 python_version=$(python --version | tail -c +8)
 actual_filename="actual-$python_version.yml"
 errors_filename="errors-$python_version.log"
-diff_filename="diff-$python_version.log"
 
 passed=0
 
@@ -49,8 +48,7 @@ do
     continue
   else
     # Confirm that actual.yml matches expected.yml.
-    diff expected.yml $actual_filename > $diff_filename
-    if [[ $(wc -l $diff_filename | trim) == "0 $diff_filename" ]]
+    if diff -U3 expected.yml $actual_filename
     then
       echo "$test_scenario has passed!"
     else
