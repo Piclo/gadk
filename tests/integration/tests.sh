@@ -6,7 +6,7 @@
 # TODO: Rewrite in Python.
 #
 
-set -e
+set -euo pipefail
 
 # Make filenames specific to Python version. This way the output of tox tests is separated.
 python_version=$(python --version | tail -c +8)
