@@ -18,8 +18,8 @@ def output_to_file(workflow: Workflow):
         fd.write(workflow.render())
 
 
-def output_to_stdout(workflow: Workflow):
-    click.echo(workflow.render())
+def output_to_stdout(workflow: Workflow, trailing_newline: bool = False):
+    click.echo(workflow.render(), nl=trailing_newline)
 
 
 def find_workflows() -> List[Workflow]:
@@ -86,14 +86,14 @@ def fetch_actual_workflow_contents(workflow_name: str) -> Optional[str]:
 
 
 def _sync(print_to_stdout: bool):
-    # Determine output per workflow.
-    outputter = output_to_stdout if print_to_stdout else output_to_file
-
     # Assume actions.py imports all elements of gadk to get subclasses of Workflow.
     workflows = import_workflows()
-    for workflow in workflows:
-        outputter(workflow)
-
+    workflow_count = len(workflows)
+    for i, workflow in enumerate(workflows, start=1):
+        if print_to_stdout:
+            output_to_stdout(workflow, trailing_newline=i < workflow_count)
+        else:
+            output_to_file(workflow)
 
 @click.group(
     invoke_without_command=True,
