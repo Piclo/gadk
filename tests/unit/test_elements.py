@@ -1,3 +1,5 @@
+import pytest
+
 from gadk import *
 
 
@@ -6,10 +8,22 @@ class TestWorkflow:
         workflow = Workflow("foo", concurrency_group="my_group")
         assert workflow.to_yaml() == {"concurrency": "my_group", "on": {}}
 
-    def test_cancel_in_progress_concurrency(self):
-        workflow = Workflow("foo", concurrency_group="my_group", cancel_in_progress=True)
+    @pytest.mark.parametrize('cancel_in_progress', [True, "${{ some-expression }}"])
+    def test_cancel_in_progress_concurrency(self, cancel_in_progress):
+        workflow = Workflow(
+            "foo", concurrency_group="my_group", cancel_in_progress=cancel_in_progress
+        )
         assert workflow.to_yaml() == {
-            "concurrency": {"group": "my_group", "cancel-in-progress": True},
+            "concurrency": {"group": "my_group", "cancel-in-progress": cancel_in_progress},
+            "on": {},
+        }
+
+    def test_cancel_in_progress_concurrency_expression_obj(self):
+        workflow = Workflow(
+            "foo", concurrency_group="my_group", cancel_in_progress=Expression("some-expression")
+        )
+        assert workflow.to_yaml() == {
+            "concurrency": {"group": "my_group", "cancel-in-progress": "${{ some-expression }}"},
             "on": {},
         }
 

@@ -10,8 +10,8 @@ include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
 python = ">=3.6,<4"
-pyyaml = "^5.3"
-click = "^7.1.1"
+pyyaml = "^5.4 || ^6.0"
+click = "^7.1.1 || ^8.0.0"
 colorama = "^0.4.3"
 
 [tool.poetry.dev-dependencies]

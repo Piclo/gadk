@@ -186,9 +186,9 @@ class Workflow(Yamlable):
             name: Optional[str] = None,
             *,
             concurrency_group: Optional[str] = None,
-            cancel_in_progress: bool = False,
+            cancel_in_progress: Optional[Union[bool, str, Expression]] = None,
     ) -> None:
-        if cancel_in_progress and concurrency_group is None:
+        if cancel_in_progress is not None and concurrency_group is None:
             raise ValueError(
                 "cancel_in_progress requires a concurrency_group to be set"
             )
@@ -197,7 +197,7 @@ class Workflow(Yamlable):
         self.filename: str = filename
         self.name: Optional[str] = name
         self.concurrency_group: Optional[str] = concurrency_group
-        self.cancel_in_progress: bool = cancel_in_progress
+        self.cancel_in_progress: Optional[Union[bool, str, Expression]] = cancel_in_progress
         self._on: Dict[str, On] = {}
         self.jobs: Dict[str, Job] = {}
 
@@ -225,13 +225,16 @@ class Workflow(Yamlable):
         if self.name:
             workflow["name"] = self.name
         if self.concurrency_group:
-            if self.cancel_in_progress:
+            if self.cancel_in_progress is None:
+                workflow["concurrency"] = self.concurrency_group
+            else:
                 workflow["concurrency"] = {
                     "group": self.concurrency_group,
-                    "cancel-in-progress": True,
+                    "cancel-in-progress":
+                        self.cancel_in_progress.to_yaml()
+                        if isinstance(self.cancel_in_progress, Yamlable)
+                        else self.cancel_in_progress,
                 }
-            else:
-                workflow["concurrency"] = self.concurrency_group
         workflow["on"] = {on_key: on.to_yaml() for on_key, on in self._on.items()}
         if self.jobs:
             workflow["jobs"] = {
