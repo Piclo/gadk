@@ -1,8 +1,8 @@
-from typing import Any
+from typing import Any, Dict
 
 import yaml
 
-from gadk import EnvVars, Dict, Expression
+from .elements import EnvVars, Expression
 
 
 def env_vars_to_yaml(env_vars: EnvVars) -> Dict:
