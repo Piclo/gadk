@@ -8,6 +8,12 @@ from gadk import *
 
 
 class TestWorkflow:
+    def test_env(self):
+        workflow = Workflow("foo", env={"var1": "value1", "var2": "value2"})
+        yaml = workflow.to_yaml()
+        assert "env" in yaml
+        assert yaml["env"] == {"var1": "value1", "var2": "value2"}
+
     def test_simple_concurrency(self):
         workflow = Workflow("foo", concurrency_group="my_group")
         assert workflow.to_yaml() == {"concurrency": "my_group", "on": {}}
