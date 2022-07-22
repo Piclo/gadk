@@ -109,7 +109,6 @@ class UsesStep(Step):
         super().__init__(name=name, condition=condition, env=env)
         self._action = action
         self._with: Dict[str, str] = with_args or {}
-        self._env: Dict[str, str] = env or {}
 
     def with_args(self, **kwargs):
         self._with = kwargs
