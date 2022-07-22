@@ -51,11 +51,13 @@ class Step(Yamlable, ABC):
         self,
         *,
         name: Optional[str] = None,
+        step_id: Optional[str] = None,
         condition: str = "",
         env: Optional[Dict[str, str]] = None,
     ) -> None:
         super().__init__()
         self._name: Optional[str] = name
+        self._id: Optional[str] = step_id
         self._env: Dict[str, str] = env or {}
         self._if: str = condition or ""
         # TODO: add later
@@ -67,6 +69,8 @@ class Step(Yamlable, ABC):
         step = {}
         if self._name:
             step["name"] = self._name
+        if self._id is not None:
+            step["id"] = self._id
         if self._if:
             step["if"] = self._if
         step = self.step_extension(step)

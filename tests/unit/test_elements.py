@@ -100,3 +100,9 @@ class TestStep:
         }
 
         assert step_cls(*step_args, env=env, **step_kwargs).to_yaml()["env"] == expected_env
+
+    def test_step_id(self, step_cls, step_args, step_kwargs):
+        step = step_cls(*step_args, step_id="foobar", **step_kwargs)
+        yaml = step.to_yaml()
+        assert "id" in yaml
+        assert yaml["id"] == "foobar"
