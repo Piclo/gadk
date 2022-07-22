@@ -82,14 +82,8 @@ class Step(Yamlable, ABC):
 
 
 class RunStep(Step):
-    def __init__(
-        self,
-        cmd: str,
-        name: Optional[str] = None,
-        condition: str = "",
-        env: Optional[Dict[str, str]] = None,
-    ) -> None:
-        super().__init__(name=name, condition=condition, env=env)
+    def __init__(self, cmd: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._cmd: str = cmd
 
     def step_extension(self, step: Dict) -> Dict:
@@ -101,12 +95,11 @@ class UsesStep(Step):
     def __init__(
         self,
         action: str,
-        name: Optional[str] = None,
-        condition: str = "",
         with_args: Optional[Dict] = None,
-        env: Optional[Dict[str, str]] = None,
+        *args,
+        **kwargs,
     ) -> None:
-        super().__init__(name=name, condition=condition, env=env)
+        super().__init__(*args, **kwargs)
         self._action = action
         self._with: Dict[str, str] = with_args or {}
 
