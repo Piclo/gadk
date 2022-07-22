@@ -84,8 +84,12 @@ class TestWorkflowOn:
         }
 
 
+@pytest.mark.parametrize("step_cls, step_args, step_kwargs", [
+    (RunStep, ("echo foo",), {}),
+    (UsesStep, ("foo@v1",), {}),
+], ids=("RunStep", "UsesStep"))
 class TestStep:
-    def test_env_is_rendered(self):
+    def test_env_is_rendered(self, step_cls, step_args, step_kwargs):
         env = {
             "DEPLOY_ENV": "prod",
             "DEPLOY_SECRET": Expression("secrets.KEY"),
@@ -95,5 +99,4 @@ class TestStep:
             "DEPLOY_SECRET": "${{ secrets.KEY }}",
         }
 
-        assert RunStep("build", env=env).to_yaml()["env"] == expected_env
-        assert UsesStep(ACTION_UPLOAD, env=env).to_yaml()["env"] == expected_env
+        assert step_cls(*step_args, env=env, **step_kwargs).to_yaml()["env"] == expected_env
