@@ -85,6 +85,16 @@ class TestWorkflowOn:
 
 
 class TestJob:
+    @pytest.mark.parametrize("needs", [
+        ["foo"],
+        ["foo", "bar"],
+    ], ids=["single", "multiple"])
+    def test_needs(self, needs):
+        job = Job(needs=needs)
+        yaml = job.to_yaml()
+        assert "needs" in yaml
+        assert yaml["needs"] == needs
+
     def test_outputs(self):
         job = Job(outputs={"string-output": "foo", "expr-output": Expression("bar")})
         yaml = job.to_yaml()
