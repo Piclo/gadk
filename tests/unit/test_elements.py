@@ -84,6 +84,14 @@ class TestWorkflowOn:
         }
 
 
+class TestJob:
+    def test_outputs(self):
+        job = Job(outputs={"string-output": "foo", "expr-output": Expression("bar")})
+        yaml = job.to_yaml()
+        assert "outputs" in yaml
+        assert yaml["outputs"] == {"string-output": "foo", "expr-output": "${{ bar }}"}
+
+
 @pytest.mark.parametrize("step_cls, step_args, step_kwargs", [
     (RunStep, ("echo foo",), {}),
     (UsesStep, ("foo@v1",), {}),
