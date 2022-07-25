@@ -88,7 +88,8 @@ class TestJob:
     @pytest.mark.parametrize("needs", [
         ["foo"],
         ["foo", "bar"],
-    ], ids=["single", "multiple"])
+        "foobar",
+    ], ids=["single", "multiple", "string"])
     def test_needs(self, needs):
         job = Job(needs=needs)
         yaml = job.to_yaml()

@@ -143,7 +143,7 @@ class Job(Yamlable):
         condition: str = "",
         runs_on: str = "ubuntu-latest",
         steps: Optional[List[Step]] = None,
-        needs: Optional[List[str]] = None,
+        needs: Optional[Union[List[str], str]] = None,
         outputs: Dict[str, Union[str, Expression]] = None,
         env: Optional[EnvVars] = None,
         default_checkout: bool = True,
@@ -152,7 +152,7 @@ class Job(Yamlable):
         self._if: str = condition or ""
         self._runs_on: str = runs_on
         self._steps: List[Step] = steps or []
-        self._needs: List[str] = needs or []
+        self._needs: Union[List[str], str] = needs or []
         self._outputs: Dict[str, Union[str, Expression]] = outputs
         self._env: EnvVars = env or {}
         if default_checkout:
