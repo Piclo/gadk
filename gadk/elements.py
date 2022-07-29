@@ -51,11 +51,13 @@ class Step(Yamlable, ABC):
         self,
         *,
         name: Optional[str] = None,
+        step_id: Optional[str] = None,
         condition: str = "",
         env: Optional[Dict[str, str]] = None,
     ) -> None:
         super().__init__()
         self._name: Optional[str] = name
+        self._id: Optional[str] = step_id
         self._env: Dict[str, str] = env or {}
         self._if: str = condition or ""
         # TODO: add later
@@ -67,6 +69,8 @@ class Step(Yamlable, ABC):
         step = {}
         if self._name:
             step["name"] = self._name
+        if self._id is not None:
+            step["id"] = self._id
         if self._if:
             step["if"] = self._if
         step = self.step_extension(step)
@@ -82,18 +86,16 @@ class Step(Yamlable, ABC):
 
 
 class RunStep(Step):
-    def __init__(
-        self,
-        cmd: str,
-        name: Optional[str] = None,
-        condition: str = "",
-        env: Optional[Dict[str, str]] = None,
-    ) -> None:
-        super().__init__(name=name, condition=condition, env=env)
+    def __init__(self, cmd: str, workdir: Optional[str] = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._cmd: str = cmd
+        self._workdir: Optional[str] = workdir
 
     def step_extension(self, step: Dict) -> Dict:
         step["run"] = self._cmd
+        if self._workdir is not None:
+            step["working-directory"] = self._workdir
+
         return step
 
 
@@ -101,15 +103,13 @@ class UsesStep(Step):
     def __init__(
         self,
         action: str,
-        name: Optional[str] = None,
-        condition: str = "",
         with_args: Optional[Dict] = None,
-        env: Optional[Dict[str, str]] = None,
+        *args,
+        **kwargs,
     ) -> None:
-        super().__init__(name=name, condition=condition, env=env)
+        super().__init__(*args, **kwargs)
         self._action = action
         self._with: Dict[str, str] = with_args or {}
-        self._env: Dict[str, str] = env or {}
 
     def with_args(self, **kwargs):
         self._with = kwargs
@@ -147,7 +147,8 @@ class Job(Yamlable):
         condition: str = "",
         runs_on: str = "ubuntu-latest",
         steps: Optional[List[Step]] = None,
-        needs: Optional[List[str]] = None,
+        needs: Optional[Union[List[str], str]] = None,
+        outputs: Dict[str, Union[str, Expression]] = None,
         env: Optional[EnvVars] = None,
         default_checkout: bool = True,
     ) -> None:
@@ -155,7 +156,8 @@ class Job(Yamlable):
         self._if: str = condition or ""
         self._runs_on: str = runs_on
         self._steps: List[Step] = steps or []
-        self._needs: List[str] = needs or []
+        self._needs: Union[List[str], str] = needs or []
+        self._outputs: Dict[str, Union[str, Expression]] = outputs
         self._env: EnvVars = env or {}
         if default_checkout:
             self._steps.insert(0, UsesStep(action=ACTION_CHECKOUT))
@@ -170,6 +172,11 @@ class Job(Yamlable):
         if self._needs:
             job["needs"] = self._needs
         job["runs-on"] = self._runs_on
+        if self._outputs is not None:
+            job["outputs"] = {
+                output: value.to_yaml() if isinstance(value, Yamlable) else value
+                for output, value in self._outputs.items()
+            }
         if self._env:
             from .utils import env_vars_to_yaml
 

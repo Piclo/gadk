@@ -84,8 +84,31 @@ class TestWorkflowOn:
         }
 
 
+class TestJob:
+    @pytest.mark.parametrize("needs", [
+        ["foo"],
+        ["foo", "bar"],
+        "foobar",
+    ], ids=["single", "multiple", "string"])
+    def test_needs(self, needs):
+        job = Job(needs=needs)
+        yaml = job.to_yaml()
+        assert "needs" in yaml
+        assert yaml["needs"] == needs
+
+    def test_outputs(self):
+        job = Job(outputs={"string-output": "foo", "expr-output": Expression("bar")})
+        yaml = job.to_yaml()
+        assert "outputs" in yaml
+        assert yaml["outputs"] == {"string-output": "foo", "expr-output": "${{ bar }}"}
+
+
+@pytest.mark.parametrize("step_cls, step_args, step_kwargs", [
+    (RunStep, ("echo foo",), {}),
+    (UsesStep, ("foo@v1",), {}),
+], ids=("RunStep", "UsesStep"))
 class TestStep:
-    def test_env_is_rendered(self):
+    def test_env_is_rendered(self, step_cls, step_args, step_kwargs):
         env = {
             "DEPLOY_ENV": "prod",
             "DEPLOY_SECRET": Expression("secrets.KEY"),
@@ -95,5 +118,23 @@ class TestStep:
             "DEPLOY_SECRET": "${{ secrets.KEY }}",
         }
 
-        assert RunStep("build", env=env).to_yaml()["env"] == expected_env
-        assert UsesStep(ACTION_UPLOAD, env=env).to_yaml()["env"] == expected_env
+        assert step_cls(*step_args, env=env, **step_kwargs).to_yaml()["env"] == expected_env
+
+    def test_step_id(self, step_cls, step_args, step_kwargs):
+        step = step_cls(*step_args, step_id="foobar", **step_kwargs)
+        yaml = step.to_yaml()
+        assert "id" in yaml
+        assert yaml["id"] == "foobar"
+
+
+class TestRunStep:
+    def test_working_directory__empty(self):
+        step = RunStep("echo foo")
+        yaml = step.to_yaml()
+        assert "working-directory" not in yaml
+
+    def test_working_directory(self):
+        step = RunStep("echo foo", workdir="foo/bar")
+        yaml = step.to_yaml()
+        assert "working-directory" in yaml
+        assert yaml["working-directory"] == "foo/bar"
