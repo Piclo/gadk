@@ -86,12 +86,16 @@ class Step(Yamlable, ABC):
 
 
 class RunStep(Step):
-    def __init__(self, cmd: str, *args, **kwargs):
+    def __init__(self, cmd: str, workdir: Optional[str] = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._cmd: str = cmd
+        self._workdir: Optional[str] = workdir
 
     def step_extension(self, step: Dict) -> Dict:
         step["run"] = self._cmd
+        if self._workdir is not None:
+            step["working-directory"] = self._workdir
+
         return step
 
 

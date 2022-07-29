@@ -125,3 +125,16 @@ class TestStep:
         yaml = step.to_yaml()
         assert "id" in yaml
         assert yaml["id"] == "foobar"
+
+
+class TestRunStep:
+    def test_working_directory__empty(self):
+        step = RunStep("echo foo")
+        yaml = step.to_yaml()
+        assert "working-directory" not in yaml
+
+    def test_working_directory(self):
+        step = RunStep("echo foo", workdir="foo/bar")
+        yaml = step.to_yaml()
+        assert "working-directory" in yaml
+        assert yaml["working-directory"] == "foo/bar"
