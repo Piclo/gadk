@@ -205,7 +205,7 @@ class Workflow(Yamlable):
         self.name: Optional[str] = name
         self.concurrency_group: Optional[str] = concurrency_group
         self.cancel_in_progress: Optional[Union[bool, str, Expression]] = cancel_in_progress
-        self._on: Dict[str, On] = {}
+        self._on: Dict[str, Union[On, Null]] = {}
         self.jobs: Dict[str, Job] = {}
 
     def on(
