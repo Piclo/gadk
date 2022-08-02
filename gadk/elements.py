@@ -11,7 +11,7 @@ class Yamlable(ABC):
 
 
 class Null(Yamlable):
-    def to_yaml(self) -> str:
+    def to_yaml(self) -> None:
         return None
 
 
