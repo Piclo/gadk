@@ -168,6 +168,7 @@ class Job(Yamlable):
     def __init__(
         self,
         *,
+        name: Optional[str] = None,
         condition: str = "",
         runs_on: str = "ubuntu-latest",
         steps: Optional[List[Step]] = None,
@@ -177,6 +178,7 @@ class Job(Yamlable):
         default_checkout: bool = True,
     ) -> None:
         super().__init__()
+        self._name = name
         self._if: str = condition or ""
         self._runs_on: str = runs_on
         self._steps: List[Step] = steps or []
@@ -187,13 +189,19 @@ class Job(Yamlable):
             self._steps.insert(0, UsesStep(action=ACTION_CHECKOUT))
 
     def __repr__(self):
-        return f"<{type(self).__name__} {self._steps=}>"
+        repr_ = f"<{type(self).__name__}"
+        if self._name is not None:
+            repr_ = f"{repr_} {self._name=}"
+
+        return f"{repr_} {self._steps=}>"
 
     def add_step(self, step: Step):
         self._steps.append(step)
 
     def to_yaml(self) -> Any:
         job: Dict[str, Any] = {}
+        if self._name is not None:
+            job["name"] = self._name
         if self._if:
             job["if"] = self._if
         if self._needs:
