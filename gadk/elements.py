@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 from typing import Any, Dict, Optional, Iterable, List, Union
 
-from .constants import *
+from .constants import ACTION_CHECKOUT, ACTION_DOWNLOAD, ACTION_UPLOAD
 
 
 class Yamlable(ABC):
