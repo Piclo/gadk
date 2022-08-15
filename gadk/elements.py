@@ -143,9 +143,9 @@ class UsesStep(Step):
 
     def __repr__(self):
         slug = (
-            f"id={self._id!r}" if self._id is not None
-            else f"name={self._name!r}" if self._name is not None
-            else f"action={self._action!r}"
+            f"{self._id=}" if self._id is not None
+            else f"{self._name=}" if self._name is not None
+            else f"{self._action=}"
         )
         return f"<{type(self).__name__} {slug}>"
 
