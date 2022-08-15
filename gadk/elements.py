@@ -1,7 +1,21 @@
 from abc import abstractmethod, ABC
 from typing import Any, Dict, Optional, Iterable, List, Union
 
-from .constants import *
+from .constants import ACTION_CHECKOUT, ACTION_DOWNLOAD, ACTION_UPLOAD
+
+__all__ = [
+    "Artifact",
+    "EnvVars",
+    "Expression",
+    "Job",
+    "Null",
+    "On",
+    "RunStep",
+    "Step",
+    "UsesStep",
+    "Workflow",
+    "Yamlable",
+]
 
 
 class Yamlable(ABC):
@@ -11,7 +25,7 @@ class Yamlable(ABC):
 
 
 class Null(Yamlable):
-    def to_yaml(self) -> str:
+    def to_yaml(self) -> None:
         return None
 
 
@@ -65,6 +79,14 @@ class Step(Yamlable, ABC):
         # self._continue_on_error
         # self._timeout_in_minutes
 
+    def __repr__(self):
+        slug = (
+            f"{self._id=}" if self._id is not None
+            else f"{self._name=}" if self._name is not None
+            else '(unnamed)'
+        )
+        return f"<{type(self).__name__} {slug}>"
+
     def to_yaml(self) -> Any:
         step = {}
         if self._name:
@@ -91,6 +113,14 @@ class RunStep(Step):
         self._cmd: str = cmd
         self._workdir: Optional[str] = workdir
 
+    def __repr__(self):
+        slug = (
+            f"{self._id=}" if self._id is not None
+            else f"{self._name=}" if self._name is not None
+            else f"{self._cmd=}"
+        )
+        return f"<{type(self).__name__} {slug}>"
+
     def step_extension(self, step: Dict) -> Dict:
         step["run"] = self._cmd
         if self._workdir is not None:
@@ -110,6 +140,14 @@ class UsesStep(Step):
         super().__init__(*args, **kwargs)
         self._action = action
         self._with: Dict[str, str] = with_args or {}
+
+    def __repr__(self):
+        slug = (
+            f"id={self._id!r}" if self._id is not None
+            else f"name={self._name!r}" if self._name is not None
+            else f"action={self._action!r}"
+        )
+        return f"<{type(self).__name__} {slug}>"
 
     def with_args(self, **kwargs):
         self._with = kwargs
@@ -144,6 +182,7 @@ class Job(Yamlable):
     def __init__(
         self,
         *,
+        name: Optional[str] = None,
         condition: str = "",
         runs_on: str = "ubuntu-latest",
         steps: Optional[List[Step]] = None,
@@ -153,6 +192,7 @@ class Job(Yamlable):
         default_checkout: bool = True,
     ) -> None:
         super().__init__()
+        self._name = name
         self._if: str = condition or ""
         self._runs_on: str = runs_on
         self._steps: List[Step] = steps or []
@@ -162,11 +202,20 @@ class Job(Yamlable):
         if default_checkout:
             self._steps.insert(0, UsesStep(action=ACTION_CHECKOUT))
 
+    def __repr__(self):
+        repr_ = f"<{type(self).__name__}"
+        if self._name is not None:
+            repr_ = f"{repr_} {self._name=}"
+
+        return f"{repr_} {self._steps=}>"
+
     def add_step(self, step: Step):
         self._steps.append(step)
 
     def to_yaml(self) -> Any:
         job: Dict[str, Any] = {}
+        if self._name is not None:
+            job["name"] = self._name
         if self._if:
             job["if"] = self._if
         if self._needs:
@@ -205,8 +254,15 @@ class Workflow(Yamlable):
         self.name: Optional[str] = name
         self.concurrency_group: Optional[str] = concurrency_group
         self.cancel_in_progress: Optional[Union[bool, str, Expression]] = cancel_in_progress
-        self._on: Dict[str, On] = {}
+        self._on: Dict[str, Union[On, Null]] = {}
         self.jobs: Dict[str, Job] = {}
+
+    def __repr__(self):
+        repr_ = f"<{type(self).__name__}"
+        if self.name is not None:
+            repr_ = f"{repr_} {self.name=}"
+
+        return f"{repr_} {self.filename=}>"
 
     def on(
         self,

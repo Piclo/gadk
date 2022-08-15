@@ -85,6 +85,12 @@ class TestWorkflowOn:
 
 
 class TestJob:
+    def test_name(self):
+        job = Job(name="foo")
+        yaml = job.to_yaml()
+        assert "name" in yaml
+        assert yaml["name"] == "foo"
+
     @pytest.mark.parametrize("needs", [
         ["foo"],
         ["foo", "bar"],
