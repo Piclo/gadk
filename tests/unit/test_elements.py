@@ -143,6 +143,17 @@ class TestJob:
         assert "strategy" in yaml
         assert yaml["strategy"] == {"matrix": matrix}
 
+    def test_fail_fast(self):
+        matrix = {"a": [1, 2]}
+        job = Job(matrix=matrix, fail_fast=True)
+        yaml = job.to_yaml()
+        assert "strategy" in yaml
+        assert yaml["strategy"] == {"matrix": matrix, "fail-fast": True}
+
+    def test_fail_fast_without_matrix(self):
+        with pytest.raises(ValueError):
+            Job(fail_fast=True)
+
 
 @pytest.mark.parametrize("step_cls, step_args, step_kwargs", [
     (RunStep, ("echo foo",), {}),

@@ -187,6 +187,7 @@ class Job(Yamlable):
         condition: str = "",
         runs_on: str = "ubuntu-latest",
         matrix: Optional[Dict[str, Sequence]] = None,
+        fail_fast: Optional[bool] = None,
         steps: Optional[List[Step]] = None,
         needs: Optional[Union[List[str], str]] = None,
         outputs: Dict[str, Union[str, Expression]] = None,
@@ -197,7 +198,11 @@ class Job(Yamlable):
         self._name = name
         self._if: str = condition or ""
         self._runs_on: str = runs_on
+        if matrix is None and fail_fast is not None:
+            raise ValueError('"fail_fast" requires "matrix"')
+
         self._matrix = matrix
+        self._fail_fast = fail_fast
         self._steps: List[Step] = steps or []
         self._needs: Union[List[str], str] = needs or []
         self._outputs: Dict[str, Union[str, Expression]] = outputs
@@ -226,6 +231,8 @@ class Job(Yamlable):
         job["runs-on"] = self._runs_on
         if self._matrix is not None:
             job["strategy"] = {"matrix": self._matrix}
+            if self._fail_fast is not None:
+                job["strategy"]["fail-fast"] = self._fail_fast
         if self._outputs is not None:
             job["outputs"] = {
                 output: value.to_yaml() if isinstance(value, Yamlable) else value
