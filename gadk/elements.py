@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+from collections.abc import Sequence
 from typing import Any, Dict, Optional, Iterable, List, Union
 
 from .constants import ACTION_CHECKOUT, ACTION_DOWNLOAD, ACTION_UPLOAD
@@ -185,6 +186,7 @@ class Job(Yamlable):
         name: Optional[str] = None,
         condition: str = "",
         runs_on: str = "ubuntu-latest",
+        matrix: Optional[Dict[str, Sequence]] = None,
         steps: Optional[List[Step]] = None,
         needs: Optional[Union[List[str], str]] = None,
         outputs: Dict[str, Union[str, Expression]] = None,
@@ -195,6 +197,7 @@ class Job(Yamlable):
         self._name = name
         self._if: str = condition or ""
         self._runs_on: str = runs_on
+        self._matrix = matrix
         self._steps: List[Step] = steps or []
         self._needs: Union[List[str], str] = needs or []
         self._outputs: Dict[str, Union[str, Expression]] = outputs
@@ -221,6 +224,8 @@ class Job(Yamlable):
         if self._needs:
             job["needs"] = self._needs
         job["runs-on"] = self._runs_on
+        if self._matrix is not None:
+            job["strategy"] = {"matrix": self._matrix}
         if self._outputs is not None:
             job["outputs"] = {
                 output: value.to_yaml() if isinstance(value, Yamlable) else value
