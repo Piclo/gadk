@@ -154,6 +154,13 @@ class TestJob:
         with pytest.raises(ValueError):
             Job(fail_fast=True)
 
+    def test_max_parallel(self):
+        matrix = {"a": [1, 2]}
+        job = Job(matrix=matrix, max_parallel=2)
+        yaml = job.to_yaml()
+        assert "strategy" in yaml
+        assert yaml["strategy"] == {"matrix": matrix, "max-parallel": 2}
+
 
 @pytest.mark.parametrize("step_cls, step_args, step_kwargs", [
     (RunStep, ("echo foo",), {}),
