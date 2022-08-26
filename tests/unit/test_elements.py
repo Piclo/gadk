@@ -108,6 +108,59 @@ class TestJob:
         assert "outputs" in yaml
         assert yaml["outputs"] == {"string-output": "foo", "expr-output": "${{ bar }}"}
 
+    def test_matrix(self):
+        matrix = {"version": ["1.1", "2.2"], "env": ["dev", "prod"]}
+        job = Job(matrix=matrix)
+        yaml = job.to_yaml()
+        assert "strategy" in yaml
+        assert yaml["strategy"] == {"matrix": matrix}
+
+    def test_matrix_include(self):
+        matrix = {
+            "version": ["1.1", "2.2"],
+            "env": ["dev", "prod"],
+            "include": [
+                {"version": "1.1", "env": "prod"},
+                {"version": "2.2", "env": "dev"},
+                {"version": "2.2", "env": "prod"},
+            ],
+        }
+        job = Job(matrix=matrix)
+        yaml = job.to_yaml()
+        assert "strategy" in yaml
+        assert yaml["strategy"] == {"matrix": matrix}
+
+    def test_matrix_exclude(self):
+        matrix = {
+            "version": ["1.1", "2.2"],
+            "env": ["dev", "prod"],
+            "exclude": [
+                {"version": "2.2", "env": "prod"},
+            ],
+        }
+        job = Job(matrix=matrix)
+        yaml = job.to_yaml()
+        assert "strategy" in yaml
+        assert yaml["strategy"] == {"matrix": matrix}
+
+    def test_fail_fast(self):
+        matrix = {"a": [1, 2]}
+        job = Job(matrix=matrix, fail_fast=True)
+        yaml = job.to_yaml()
+        assert "strategy" in yaml
+        assert yaml["strategy"] == {"matrix": matrix, "fail-fast": True}
+
+    def test_fail_fast_without_matrix(self):
+        with pytest.raises(ValueError):
+            Job(fail_fast=True)
+
+    def test_max_parallel(self):
+        matrix = {"a": [1, 2]}
+        job = Job(matrix=matrix, max_parallel=2)
+        yaml = job.to_yaml()
+        assert "strategy" in yaml
+        assert yaml["strategy"] == {"matrix": matrix, "max-parallel": 2}
+
 
 @pytest.mark.parametrize("step_cls, step_args, step_kwargs", [
     (RunStep, ("echo foo",), {}),
