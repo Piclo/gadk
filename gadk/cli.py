@@ -1,5 +1,6 @@
 import importlib
 import inspect
+from abc import ABCMeta
 from os import getcwd, makedirs
 from os.path import exists
 from typing import Generator, Optional, Type
@@ -37,7 +38,7 @@ def find_workflows(parent: Type = Workflow) -> Generator[Workflow, None, None]:
             continue
 
         all_workflow_classes.add(workflow_class)
-        if not inspect.isabstract(workflow_class):
+        if not inspect.isabstract(workflow_class) and type(workflow_class) is not ABCMeta:
             yield workflow_class()
 
         yield from find_workflows(workflow_class)
