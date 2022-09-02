@@ -2,7 +2,7 @@ import importlib
 import inspect
 from os import getcwd, makedirs
 from os.path import exists
-from typing import List, Set, Optional
+from typing import Generator, Optional, Type
 
 import click
 import sys
@@ -22,7 +22,7 @@ def output_to_stdout(workflow: Workflow, trailing_newline: bool = False):
     click.echo(workflow.render(), nl=trailing_newline)
 
 
-def find_workflows() -> List[Workflow]:
+def find_workflows(parent: Type = Workflow) -> Generator[Workflow, None, None]:
     """
     Extract workflows from imported module.
 
@@ -31,39 +31,16 @@ def find_workflows() -> List[Workflow]:
         2. Workflow subclasses should define a constructor with no arguments. The arguments
            exist for the programmer to name the workflow. `gadk` cannot guess these arguments.
     """
+    all_workflow_classes = set()
+    for workflow_class in parent.__subclasses__():
+        if workflow_class in all_workflow_classes:
+            continue
 
-    def _find_workflows(subclasses: List, workflows: Set) -> Set:
-        """
-        Recursive function to find workflows by descending a class hierarchy of abstract workflows.
+        all_workflow_classes.add(workflow_class)
+        if not inspect.isabstract(workflow_class):
+            yield workflow_class()
 
-        Simple workflows will return immediately. More complex projects might recurse once or twice.
-        """
-        child_workflows = []
-        for workflow_class in subclasses:
-            # Add subclasses of abstract subclasses. This allows for further abstractions of workflows.
-            if inspect.isabstract(workflow_class):
-                child_workflows += [
-                    child_workflow
-                    for child_workflow in workflow_class.__subclasses__()
-                    if child_workflow not in workflows
-                ]
-            else:
-                workflows.add(workflow_class)
-
-        if child_workflows:
-            return _find_workflows(child_workflows, workflows)
-        return workflows
-
-    # Collect the workflows detected in the module. There may be abstractions of workflows,
-    # so we'll look at subclasses of subclasses, and so on, if necessary.
-    workflows = _find_workflows(Workflow.__subclasses__(), set())
-
-    # Filter out those abstract workflows. Only concrete workflows should be returned.
-    return [
-        workflow_class()
-        for workflow_class in workflows
-        if not inspect.isabstract(workflow_class)
-    ]
+        yield from find_workflows(workflow_class)
 
 
 def import_workflows():
