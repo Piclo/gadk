@@ -115,6 +115,13 @@ class TestJob:
         assert "strategy" in yaml
         assert yaml["strategy"] == {"matrix": matrix}
 
+    def test_matrix_expression(self):
+        matrix = Expression("some-job.some-step.dynamic-matrix")
+        job = Job(matrix=matrix)
+        yaml = job.to_yaml()
+        assert "strategy" in yaml
+        assert yaml["strategy"] == {"matrix": matrix.to_yaml()}
+
     def test_matrix_include(self):
         matrix = {
             "version": ["1.1", "2.2"],
