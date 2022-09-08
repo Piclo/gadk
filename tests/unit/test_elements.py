@@ -168,6 +168,20 @@ class TestJob:
         assert "strategy" in yaml
         assert yaml["strategy"] == {"matrix": matrix, "max-parallel": 2}
 
+    @pytest.mark.parametrize('default_checkout', [None, True, False])
+    def test_default_checkout(self, default_checkout):
+        job_args = {"steps": [RunStep("echo hello")]}
+        if default_checkout is not None:
+            job_args["default_checkout"] = default_checkout
+
+        job = Job(**job_args)
+        yaml = job.to_yaml()
+        assert "steps" in yaml
+        if default_checkout is None or default_checkout is True:
+            assert yaml["steps"][0] == {"uses": "actions/checkout@v3"}
+        else:
+            assert {"uses": "actions/checkout@v3"} not in yaml["steps"]
+
 
 @pytest.mark.parametrize("step_cls, step_args, step_kwargs", [
     (RunStep, ("echo foo",), {}),
