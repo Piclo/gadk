@@ -186,7 +186,7 @@ class Job(Yamlable):
         name: Optional[str] = None,
         condition: str = "",
         runs_on: str = "ubuntu-latest",
-        matrix: Optional[Dict[str, Sequence]] = None,
+        matrix: Optional[Union[Dict[str, Sequence], Expression]] = None,
         fail_fast: Optional[bool] = None,
         max_parallel: Optional[int] = None,
         steps: Optional[List[Step]] = None,
@@ -235,7 +235,12 @@ class Job(Yamlable):
             job["needs"] = self._needs
         job["runs-on"] = self._runs_on
         if self._matrix is not None:
-            job["strategy"] = {"matrix": self._matrix}
+            job["strategy"] = {
+                "matrix": (
+                    self._matrix.to_yaml() if isinstance(self._matrix, Expression)
+                    else self._matrix
+                ),
+            }
             if self._fail_fast is not None:
                 job["strategy"]["fail-fast"] = self._fail_fast
             if self._max_parallel is not None:
