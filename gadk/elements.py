@@ -194,6 +194,7 @@ class Job(Yamlable):
         outputs: Dict[str, Union[str, Expression]] = None,
         env: Optional[EnvVars] = None,
         default_checkout: bool = True,
+        fetch_depth: Optional[int] = None,
     ) -> None:
         super().__init__()
         self._name = name
@@ -213,7 +214,11 @@ class Job(Yamlable):
         self._outputs: Dict[str, Union[str, Expression]] = outputs
         self._env: EnvVars = env or {}
         if default_checkout:
-            self._steps.insert(0, UsesStep(action=ACTION_CHECKOUT))
+            checkout_step_args = {"action": ACTION_CHECKOUT}
+            if fetch_depth is not None:
+                checkout_step_args["with_args"] = {"fetch-depth": fetch_depth}
+
+            self._steps.insert(0, UsesStep(**checkout_step_args))
 
     def __repr__(self):
         repr_ = f"<{type(self).__name__}"

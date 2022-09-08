@@ -182,6 +182,25 @@ class TestJob:
         else:
             assert {"uses": "actions/checkout@v3"} not in yaml["steps"]
 
+    @pytest.mark.parametrize('fetch_depth', [None, 0, 1])
+    def test_fetch_depth(self, fetch_depth):
+        job_args = {"steps": [RunStep("echo hello")]}
+        if fetch_depth is not None:
+            job_args["fetch_depth"] = fetch_depth
+
+        job = Job(**job_args)
+        yaml = job.to_yaml()
+        assert "steps" in yaml
+
+        checkout_step = yaml["steps"][0]
+        if fetch_depth is not None:
+            assert checkout_step == {
+                "uses": "actions/checkout@v3",
+                "with": {"fetch-depth": fetch_depth},
+            }
+        else:
+            assert "with" not in checkout_step
+
 
 @pytest.mark.parametrize("step_cls, step_args, step_kwargs", [
     (RunStep, ("echo foo",), {}),
