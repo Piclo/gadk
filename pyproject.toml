@@ -24,7 +24,6 @@ coverage = "^6.5.0"
 [tool.poetry.scripts]
 gadk = 'gadk.cli:cmd'
 
-# Enable tox.
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
