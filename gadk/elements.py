@@ -82,9 +82,11 @@ class Step(Yamlable, ABC):
 
     def __repr__(self):
         slug = (
-            f"{self._id=}" if self._id is not None
-            else f"{self._name=}" if self._name is not None
-            else '(unnamed)'
+            f"{self._id=}"
+            if self._id is not None
+            else f"{self._name=}"
+            if self._name is not None
+            else "(unnamed)"
         )
         return f"<{type(self).__name__} {slug}>"
 
@@ -116,8 +118,10 @@ class RunStep(Step):
 
     def __repr__(self):
         slug = (
-            f"{self._id=}" if self._id is not None
-            else f"{self._name=}" if self._name is not None
+            f"{self._id=}"
+            if self._id is not None
+            else f"{self._name=}"
+            if self._name is not None
             else f"{self._cmd=}"
         )
         return f"<{type(self).__name__} {slug}>"
@@ -144,8 +148,10 @@ class UsesStep(Step):
 
     def __repr__(self):
         slug = (
-            f"{self._id=}" if self._id is not None
-            else f"{self._name=}" if self._name is not None
+            f"{self._id=}"
+            if self._id is not None
+            else f"{self._name=}"
+            if self._name is not None
             else f"{self._action=}"
         )
         return f"<{type(self).__name__} {slug}>"
@@ -237,7 +243,8 @@ class Job(Yamlable):
         if self._matrix is not None:
             job["strategy"] = {
                 "matrix": (
-                    self._matrix.to_yaml() if isinstance(self._matrix, Expression)
+                    self._matrix.to_yaml()
+                    if isinstance(self._matrix, Expression)
                     else self._matrix
                 ),
             }
@@ -261,12 +268,12 @@ class Job(Yamlable):
 
 class Workflow(Yamlable):
     def __init__(
-            self,
-            filename: str,
-            name: Optional[str] = None,
-            *,
-            concurrency_group: Optional[str] = None,
-            cancel_in_progress: Optional[Union[bool, str, Expression]] = None,
+        self,
+        filename: str,
+        name: Optional[str] = None,
+        *,
+        concurrency_group: Optional[str] = None,
+        cancel_in_progress: Optional[Union[bool, str, Expression]] = None,
     ) -> None:
         if cancel_in_progress is not None and concurrency_group is None:
             raise ValueError(
@@ -277,7 +284,9 @@ class Workflow(Yamlable):
         self.filename: str = filename
         self.name: Optional[str] = name
         self.concurrency_group: Optional[str] = concurrency_group
-        self.cancel_in_progress: Optional[Union[bool, str, Expression]] = cancel_in_progress
+        self.cancel_in_progress: Optional[
+            Union[bool, str, Expression]
+        ] = cancel_in_progress
         self._on: Dict[str, Union[On, Null]] = {}
         self.jobs: Dict[str, Job] = {}
 
@@ -317,10 +326,9 @@ class Workflow(Yamlable):
             else:
                 workflow["concurrency"] = {
                     "group": self.concurrency_group,
-                    "cancel-in-progress":
-                        self.cancel_in_progress.to_yaml()
-                        if isinstance(self.cancel_in_progress, Yamlable)
-                        else self.cancel_in_progress,
+                    "cancel-in-progress": self.cancel_in_progress.to_yaml()
+                    if isinstance(self.cancel_in_progress, Yamlable)
+                    else self.cancel_in_progress,
                 }
         workflow["on"] = {on_key: on.to_yaml() for on_key, on in self._on.items()}
         if self.jobs:
@@ -331,6 +339,7 @@ class Workflow(Yamlable):
 
     def render(self) -> str:
         from .utils import dump_yaml
+
         header = (
             "# This file is managed by gadk. "
             "For more information see https://pypi.org/project/gadk/."

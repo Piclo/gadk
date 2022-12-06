@@ -11,7 +11,9 @@ class TestYamlDump:
 
         needs = ["foo", "bar", "baz", "foobar"]
         value = {"1": {"needs": needs}, "2": {"needs": needs}}
-        assert utils.dump_yaml(value) == """
+        assert (
+            utils.dump_yaml(value)
+            == """
 '1':
   needs:
   - foo
@@ -25,3 +27,4 @@ class TestYamlDump:
   - baz
   - foobar
 """.lstrip()
+        )
