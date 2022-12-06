@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 from collections.abc import Sequence
-from typing import Any, Dict, Optional, Iterable, List, Union
+from typing import Any, Dict, Mapping, Optional, Iterable, List, Union
 
 from .constants import ACTION_CHECKOUT, ACTION_DOWNLOAD, ACTION_UPLOAD
 
@@ -39,7 +39,7 @@ class Expression(Yamlable):
         return "${{ %s }}" % self._expr
 
 
-EnvVars = Dict[str, Union[Any, Expression]]
+EnvVars = Mapping[str, Union[Any, Expression]]
 
 
 class On(Yamlable):
@@ -91,7 +91,7 @@ class Step(Yamlable, ABC):
         return f"<{type(self).__name__} {slug}>"
 
     def to_yaml(self) -> Any:
-        step = {}
+        step: dict[str, Any] = {}
         if self._name:
             step["name"] = self._name
         if self._id is not None:
@@ -197,7 +197,7 @@ class Job(Yamlable):
         max_parallel: Optional[int] = None,
         steps: Optional[List[Step]] = None,
         needs: Optional[Union[List[str], str]] = None,
-        outputs: Dict[str, Union[str, Expression]] = None,
+        outputs: Optional[Dict[str, Union[str, Expression]]] = None,
         env: Optional[EnvVars] = None,
         default_checkout: bool = True,
     ) -> None:
@@ -216,7 +216,7 @@ class Job(Yamlable):
         self._max_parallel = max_parallel
         self._steps: List[Step] = steps or []
         self._needs: Union[List[str], str] = needs or []
-        self._outputs: Dict[str, Union[str, Expression]] = outputs
+        self._outputs: Optional[Dict[str, Union[str, Expression]]] = outputs
         self._env: EnvVars = env or {}
         if default_checkout:
             self._steps.insert(0, UsesStep(action=ACTION_CHECKOUT))

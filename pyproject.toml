@@ -20,6 +20,7 @@ tox = "^3.27.1"
 mypy = "^0.991"
 pytest = "^7.2.0"
 coverage = "^6.5.0"
+types-pyyaml = "^6.0.12.2"
 
 [tool.poetry.scripts]
 gadk = 'gadk.cli:cmd'
