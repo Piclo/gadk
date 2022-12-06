@@ -299,7 +299,7 @@ testing = ["coverage (>=4.5.1,<6)", "packaging (>=20.0)", "pytest (>=4.0.0,<6)",
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "47e2a70459214fd5b6eb793ed6993bfd0c473c3132d8ab7b69437abf09cdcb79"
+content-hash = "fbd33392d34c7c01190a105c60571696db2ad5fb8f07177bd4c424a725b91903"
 
 [metadata.files]
 appdirs = [
