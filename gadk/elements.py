@@ -1,5 +1,6 @@
 from abc import abstractmethod, ABC
 from collections.abc import Sequence
+from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, Iterable, List, Union
 
 from .constants import ACTION_CHECKOUT, ACTION_DOWNLOAD, ACTION_UPLOAD
@@ -14,6 +15,7 @@ __all__ = [
     "RunStep",
     "Step",
     "UsesStep",
+    "CacheStep",
     "Workflow",
     "Yamlable",
 ]
@@ -164,6 +166,49 @@ class UsesStep(Step):
         if self._with:
             step["with"] = self._with
         return step
+
+
+class CacheStep(UsesStep):
+    """A step that uses the cache action.
+
+    See https://github.com/marketplace/actions/cache
+    """
+
+    def __init__(
+        self,
+        name: str,
+        paths: Iterable[Union[Path, str]],
+        key: str,
+        restore_keys: Optional[Iterable[str]] = None,
+        version: str = "v3",
+        **kwargs,
+    ) -> None:
+        with_args = {"path": "\n".join(str(path) for path in paths), "key": key}
+        if restore_keys is not None:
+            with_args["restore-keys"] = "\n".join(restore_keys)
+
+        super().__init__(
+            name=name, action=f"actions/cache@{version}", with_args=with_args, **kwargs
+        )
+
+    @classmethod
+    def simple(
+        cls,
+        name: str,
+        path: Union[Path, str],
+        slug: str,
+        hash_files: Iterable[Union[str, Path]],
+        **kwargs,
+    ):
+        # Assume that filenames don't contain quotes
+        hash_files_quoted = ", ".join(f"'{filename}'" for filename in hash_files)
+        return cls(
+            name,
+            [path],
+            f"{slug}-${{{{ hashFiles({hash_files_quoted}) }}}}",
+            [f"{slug}-"],
+            **kwargs,
+        )
 
 
 class Artifact:

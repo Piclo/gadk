@@ -1,3 +1,7 @@
+from pathlib import Path
+from textwrap import dedent
+from typing import Union
+
 import pytest
 
 from gadk import *
@@ -245,3 +249,50 @@ class TestRunStep:
         yaml = step.to_yaml()
         assert "working-directory" in yaml
         assert yaml["working-directory"] == "foo/bar"
+
+
+class TestCacheStep:
+    @pytest.mark.parametrize(
+        "paths",
+        [
+            ["cache-dir-1", "cache-dir-2"],
+            [Path("cache-dir-1"), Path("cache-dir-2")],
+        ],
+        ids=["str", "Path"],
+    )
+    def test_ctor(self, paths: list[Union[str, Path]]):
+        step = CacheStep(
+            "Cache the cache directory",
+            paths,
+            "cache-key-${{ hashFiles('**/lockfiles') }}",
+            ["cache-key-"],
+        )
+        yaml = step.to_yaml()
+        assert yaml == {
+            "name": "Cache the cache directory",
+            "uses": "actions/cache@v3",
+            "with": {
+                "path": dedent(
+                    """\
+                    cache-dir-1
+                    cache-dir-2"""
+                ),
+                "key": "cache-key-${{ hashFiles('**/lockfiles') }}",
+                "restore-keys": "cache-key-",
+            },
+        }
+
+    def test_simple(self):
+        step = CacheStep.simple(
+            "Cache dependencies", "cache-dir", "cache-deps", ["lockfile1", "lockfile2"]
+        )
+        yaml = step.to_yaml()
+        assert yaml == {
+            "name": "Cache dependencies",
+            "uses": "actions/cache@v3",
+            "with": {
+                "path": "cache-dir",
+                "key": "cache-deps-${{ hashFiles('lockfile1', 'lockfile2') }}",
+                "restore-keys": "cache-deps-",
+            },
+        }
