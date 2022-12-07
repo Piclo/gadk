@@ -95,6 +95,7 @@ def _sync(print_to_stdout: bool):
         else:
             output_to_file(workflow)
 
+
 @click.group(
     invoke_without_command=True,
     context_settings={"help_option_names": ["-h", "--help"]},

@@ -8,22 +8,30 @@ class TestWorkflow:
         workflow = Workflow("foo", concurrency_group="my_group")
         assert workflow.to_yaml() == {"concurrency": "my_group", "on": {}}
 
-    @pytest.mark.parametrize('cancel_in_progress', [True, "${{ some-expression }}"])
+    @pytest.mark.parametrize("cancel_in_progress", [True, "${{ some-expression }}"])
     def test_cancel_in_progress_concurrency(self, cancel_in_progress):
         workflow = Workflow(
             "foo", concurrency_group="my_group", cancel_in_progress=cancel_in_progress
         )
         assert workflow.to_yaml() == {
-            "concurrency": {"group": "my_group", "cancel-in-progress": cancel_in_progress},
+            "concurrency": {
+                "group": "my_group",
+                "cancel-in-progress": cancel_in_progress,
+            },
             "on": {},
         }
 
     def test_cancel_in_progress_concurrency_expression_obj(self):
         workflow = Workflow(
-            "foo", concurrency_group="my_group", cancel_in_progress=Expression("some-expression")
+            "foo",
+            concurrency_group="my_group",
+            cancel_in_progress=Expression("some-expression"),
         )
         assert workflow.to_yaml() == {
-            "concurrency": {"group": "my_group", "cancel-in-progress": "${{ some-expression }}"},
+            "concurrency": {
+                "group": "my_group",
+                "cancel-in-progress": "${{ some-expression }}",
+            },
             "on": {},
         }
 
@@ -34,7 +42,12 @@ class TestWorkflowOn:
         workflow.on(push=On(paths=["src/**"], branches=["develop"]))
         rendered = workflow.to_yaml()
         assert rendered == {
-            "on": {"push": {"paths": ["src/**"], "branches": ["develop"],},},
+            "on": {
+                "push": {
+                    "paths": ["src/**"],
+                    "branches": ["develop"],
+                },
+            },
         }
 
     def test_on_only_pull_request(self):
@@ -42,7 +55,12 @@ class TestWorkflowOn:
         workflow.on(pull_request=On(paths=["src/**"], branches=["develop"]))
         rendered = workflow.to_yaml()
         assert rendered == {
-            "on": {"pull_request": {"paths": ["src/**"], "branches": ["develop"],},},
+            "on": {
+                "pull_request": {
+                    "paths": ["src/**"],
+                    "branches": ["develop"],
+                },
+            },
         }
 
     def test_on_only_workflow_dispatch(self):
@@ -62,8 +80,14 @@ class TestWorkflowOn:
         rendered = workflow.to_yaml()
         assert rendered == {
             "on": {
-                "push": {"paths": ["src/**"], "branches": ["develop"],},
-                "pull_request": {"paths": ["frontend/**"], "branches": ["master"],},
+                "push": {
+                    "paths": ["src/**"],
+                    "branches": ["develop"],
+                },
+                "pull_request": {
+                    "paths": ["frontend/**"],
+                    "branches": ["master"],
+                },
             },
         }
 
@@ -77,8 +101,14 @@ class TestWorkflowOn:
         rendered = workflow.to_yaml()
         assert rendered == {
             "on": {
-                "push": {"paths": ["src/**"], "branches": ["develop"],},
-                "pull_request": {"paths": ["frontend/**"], "branches": ["master"],},
+                "push": {
+                    "paths": ["src/**"],
+                    "branches": ["develop"],
+                },
+                "pull_request": {
+                    "paths": ["frontend/**"],
+                    "branches": ["master"],
+                },
                 "workflow_dispatch": None,
             },
         }
@@ -91,11 +121,15 @@ class TestJob:
         assert "name" in yaml
         assert yaml["name"] == "foo"
 
-    @pytest.mark.parametrize("needs", [
-        ["foo"],
-        ["foo", "bar"],
-        "foobar",
-    ], ids=["single", "multiple", "string"])
+    @pytest.mark.parametrize(
+        "needs",
+        [
+            ["foo"],
+            ["foo", "bar"],
+            "foobar",
+        ],
+        ids=["single", "multiple", "string"],
+    )
     def test_needs(self, needs):
         job = Job(needs=needs)
         yaml = job.to_yaml()
@@ -169,10 +203,14 @@ class TestJob:
         assert yaml["strategy"] == {"matrix": matrix, "max-parallel": 2}
 
 
-@pytest.mark.parametrize("step_cls, step_args, step_kwargs", [
-    (RunStep, ("echo foo",), {}),
-    (UsesStep, ("foo@v1",), {}),
-], ids=("RunStep", "UsesStep"))
+@pytest.mark.parametrize(
+    "step_cls, step_args, step_kwargs",
+    [
+        (RunStep, ("echo foo",), {}),
+        (UsesStep, ("foo@v1",), {}),
+    ],
+    ids=("RunStep", "UsesStep"),
+)
 class TestStep:
     def test_env_is_rendered(self, step_cls, step_args, step_kwargs):
         env = {
@@ -184,7 +222,10 @@ class TestStep:
             "DEPLOY_SECRET": "${{ secrets.KEY }}",
         }
 
-        assert step_cls(*step_args, env=env, **step_kwargs).to_yaml()["env"] == expected_env
+        assert (
+            step_cls(*step_args, env=env, **step_kwargs).to_yaml()["env"]
+            == expected_env
+        )
 
     def test_step_id(self, step_cls, step_args, step_kwargs):
         step = step_cls(*step_args, step_id="foobar", **step_kwargs)

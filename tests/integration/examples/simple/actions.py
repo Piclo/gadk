@@ -6,7 +6,7 @@ class MyService(Workflow):
         super().__init__(
             "my_service",
             "my service workflow",
-            concurrency_group='${{ github.workflow }}-${{ github.head_ref || github.run_id }}',
+            concurrency_group="${{ github.workflow }}-${{ github.head_ref || github.run_id }}",
             cancel_in_progress=True,
         )
 
@@ -21,5 +21,9 @@ class MyService(Workflow):
         )
 
         self.jobs["test"] = Job(
-            steps=[RunStep("make build"), RunStep("make lint"), RunStep("make test"),],
+            steps=[
+                RunStep("make build"),
+                RunStep("make lint"),
+                RunStep("make test"),
+            ],
         )

@@ -18,6 +18,7 @@ class _NoAliasDumper(yaml.SafeDumper):
 
     See https://github.com/yaml/pyyaml/issues/103
     """
+
     def ignore_aliases(self, data):
         return True
 

@@ -1,6 +1,6 @@
 from gadk import *
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class Service(Workflow, ABC):

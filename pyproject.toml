@@ -9,22 +9,22 @@ license = "MIT"
 include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4"
+python = "^3.8"
 pyyaml = "^5.4 || ^6.0"
-click = "^7.1.1 || ^8.0.0"
-colorama = "^0.4.3"
+click = "^7.1.2 || ^8.0.0"
+colorama = "^0.4.3"  # Don't upgrade this further: maintain compatibility with old awscli
 
-[tool.poetry.dev-dependencies]
-black = "^19.10b0"
-tox = "^3.14.6"
-mypy = "^0.770"
-pytest = "^5.4.1"
-coverage = "^5.1"
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
+tox = "^3.27.1"
+mypy = "^0.991"
+pytest = "^7.2.0"
+coverage = "^6.5.0"
+types-pyyaml = "^6.0.12.2"
 
 [tool.poetry.scripts]
 gadk = 'gadk.cli:cmd'
 
-# Enable tox.
 [build-system]
-requires = ["poetry>=0.12", "setuptools"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
