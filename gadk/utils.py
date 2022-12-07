@@ -35,4 +35,4 @@ def dump_yaml(value: Any) -> str:
 
     # Note: dump_all uses a subclass of the safe yaml dumper. If tools mark this line as insecure,
     # then they probably don't follow the inheritance tree.
-    return yaml.dump_all([value], sort_keys=False, Dumper=_NoAliasDumper)
+    return yaml.dump_all([value], sort_keys=False, Dumper=_NoAliasDumper, width=120)

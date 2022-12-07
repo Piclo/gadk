@@ -5,7 +5,7 @@ test:
 	tox
 
 format:
-	black gadk/
+	black .
 
 publish:
 	rm -rf dist/ gadk.egg-info/
