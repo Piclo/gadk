@@ -316,6 +316,7 @@ class TestArtifact:
         assert isinstance(upload_step, UsesStep)
         assert vars(upload_step) == vars(
             UsesStep(
+                name=f"Upload artifact 'my-artifact'",
                 action=ACTION_UPLOAD,
                 with_args={"name": "my-artifact", "path": "foo/bar"},
             )
@@ -327,6 +328,7 @@ class TestArtifact:
         assert isinstance(download_step, UsesStep)
         assert vars(download_step) == vars(
             UsesStep(
+                name=f"Download artifact 'my-artifact'",
                 action=ACTION_DOWNLOAD,
                 with_args={"name": "my-artifact", "path": "foo/bar"},
             )

@@ -221,12 +221,16 @@ class Artifact:
 
     def as_upload(self) -> UsesStep:
         return UsesStep(
-            action=ACTION_UPLOAD, with_args={"name": self._name, "path": self.path}
+            name=f"Upload artifact '{self._name}'",
+            action=ACTION_UPLOAD,
+            with_args={"name": self._name, "path": self.path},
         )
 
     def as_download(self) -> UsesStep:
         return UsesStep(
-            action=ACTION_DOWNLOAD, with_args={"name": self._name, "path": self.path}
+            name=f"Download artifact '{self._name}'",
+            action=ACTION_DOWNLOAD,
+            with_args={"name": self._name, "path": self.path},
         )
 
 
