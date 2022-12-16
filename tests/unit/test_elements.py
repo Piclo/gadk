@@ -123,6 +123,11 @@ class TestWorkflowOn:
             },
         }
 
+    def test_on_schedule(self):
+        workflow = Workflow("foo")
+        workflow.on(schedule=["0 7 * * 1-5"])  # Monday-Friday at 07:00
+        assert workflow.to_yaml() == {"on": {"schedule": {"cron": ["0 7 * * 1-5"]}}}
+
 
 class TestJob:
     def test_name(self):

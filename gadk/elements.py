@@ -334,7 +334,7 @@ class Workflow(Yamlable):
         self.cancel_in_progress: Optional[
             Union[bool, str, Expression]
         ] = cancel_in_progress
-        self._on: Dict[str, Union[On, Null]] = {}
+        self._on: Dict[str, Any] = {}
         self.jobs: Dict[str, Job] = {}
 
     def __repr__(self):
@@ -349,6 +349,7 @@ class Workflow(Yamlable):
         pull_request: Optional[On] = None,
         push: Optional[On] = None,
         workflow_dispatch: Optional[Null] = None,
+        schedule: Optional[Iterable[str]] = None,
     ):
         if pull_request:
             self._on["pull_request"] = pull_request
@@ -362,6 +363,10 @@ class Workflow(Yamlable):
             self._on["workflow_dispatch"] = workflow_dispatch
         elif "workflow_dispatch" in self._on:
             del self._on["workflow_dispatch"]
+        if schedule is not None:
+            self._on["schedule"] = {"cron": schedule}
+        elif "schedule" in self._on:
+            del self._on["schedule"]
 
     def to_yaml(self) -> Any:
         workflow: Dict[str, Any] = {}
@@ -381,7 +386,10 @@ class Workflow(Yamlable):
                     if isinstance(self.cancel_in_progress, Yamlable)
                     else self.cancel_in_progress,
                 }
-        workflow["on"] = {on_key: on.to_yaml() for on_key, on in self._on.items()}
+        workflow["on"] = {
+            on_key: on.to_yaml() if isinstance(on, Yamlable) else on
+            for on_key, on in self._on.items()
+        }
         if self.jobs:
             workflow["jobs"] = {
                 job_name: job.to_yaml() for job_name, job in self.jobs.items()
