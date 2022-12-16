@@ -317,6 +317,7 @@ class Workflow(Yamlable):
         filename: str,
         name: Optional[str] = None,
         *,
+        env: Optional[EnvVars] = None,
         concurrency_group: Optional[str] = None,
         cancel_in_progress: Optional[Union[bool, str, Expression]] = None,
     ) -> None:
@@ -328,6 +329,7 @@ class Workflow(Yamlable):
         super().__init__()
         self.filename: str = filename
         self.name: Optional[str] = name
+        self.env: Optional[EnvVars] = env
         self.concurrency_group: Optional[str] = concurrency_group
         self.cancel_in_progress: Optional[
             Union[bool, str, Expression]
@@ -365,6 +367,10 @@ class Workflow(Yamlable):
         workflow: Dict[str, Any] = {}
         if self.name:
             workflow["name"] = self.name
+        if self.env is not None:
+            from gadk.utils import env_vars_to_yaml
+
+            workflow["env"] = env_vars_to_yaml(self.env)
         if self.concurrency_group:
             if self.cancel_in_progress is None:
                 workflow["concurrency"] = self.concurrency_group
