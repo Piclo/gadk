@@ -220,19 +220,26 @@ class Artifact:
         self.path: str = path
 
     def as_upload(
-        self, *, if_no_files_found: Optional[Literal["error", "warn", "ignore"]] = None
+        self,
+        step_name: Optional[str] = None,
+        *,
+        if_no_files_found: Optional[Literal["error", "warn", "ignore"]] = None,
     ) -> UsesStep:
         args = {"name": self._name, "path": self.path}
         if if_no_files_found is not None:
             args["if-no-files-found"] = if_no_files_found
 
-        return UsesStep(
-            name=f"Upload artifact '{self._name}'", action=ACTION_UPLOAD, with_args=args
-        )
+        if step_name is None:
+            step_name = f"Upload artifact '{self._name}'"
 
-    def as_download(self) -> UsesStep:
+        return UsesStep(name=step_name, action=ACTION_UPLOAD, with_args=args)
+
+    def as_download(self, step_name: Optional[str] = None) -> UsesStep:
+        if step_name is None:
+            step_name = f"Download artifact '{self._name}'"
+
         return UsesStep(
-            name=f"Download artifact '{self._name}'",
+            name=step_name,
             action=ACTION_DOWNLOAD,
             with_args={"name": self._name, "path": self.path},
         )
