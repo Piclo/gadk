@@ -349,7 +349,7 @@ class Workflow(Yamlable):
         pull_request: Optional[On] = None,
         push: Optional[On] = None,
         workflow_dispatch: Optional[Null] = None,
-        schedule: Optional[Iterable[str]] = None,
+        schedules: Optional[Iterable[str]] = None,
     ):
         if pull_request:
             self._on["pull_request"] = pull_request
@@ -363,8 +363,8 @@ class Workflow(Yamlable):
             self._on["workflow_dispatch"] = workflow_dispatch
         elif "workflow_dispatch" in self._on:
             del self._on["workflow_dispatch"]
-        if schedule is not None:
-            self._on["schedule"] = {"cron": schedule}
+        if schedules is not None:
+            self._on["schedule"] = [{"cron": schedule} for schedule in schedules]
         elif "schedule" in self._on:
             del self._on["schedule"]
 
