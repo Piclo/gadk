@@ -224,6 +224,7 @@ class Artifact:
         step_name: Optional[str] = None,
         *,
         if_no_files_found: Optional[Literal["error", "warn", "ignore"]] = None,
+        **kwargs,
     ) -> UsesStep:
         args = {"name": self._name, "path": self.path}
         if if_no_files_found is not None:
@@ -232,9 +233,9 @@ class Artifact:
         if step_name is None:
             step_name = f"Upload artifact '{self._name}'"
 
-        return UsesStep(name=step_name, action=ACTION_UPLOAD, with_args=args)
+        return UsesStep(name=step_name, action=ACTION_UPLOAD, with_args=args, **kwargs)
 
-    def as_download(self, step_name: Optional[str] = None) -> UsesStep:
+    def as_download(self, step_name: Optional[str] = None, **kwargs) -> UsesStep:
         if step_name is None:
             step_name = f"Download artifact '{self._name}'"
 
@@ -242,6 +243,7 @@ class Artifact:
             name=step_name,
             action=ACTION_DOWNLOAD,
             with_args={"name": self._name, "path": self.path},
+            **kwargs,
         )
 
 
