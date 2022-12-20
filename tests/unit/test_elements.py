@@ -1,6 +1,6 @@
 from pathlib import Path
 from textwrap import dedent
-from typing import Union
+from typing import Literal, Optional, Union
 
 import pytest
 
@@ -307,3 +307,50 @@ class TestCacheStep:
                 "restore-keys": "cache-deps-",
             },
         }
+
+
+class TestArtifact:
+    def test_upload(self):
+        artifact = Artifact(name="my-artifact", path="foo/bar")
+        upload_step = artifact.as_upload()
+        assert isinstance(upload_step, UsesStep)
+        assert vars(upload_step) == vars(
+            UsesStep(
+                name=f"Upload artifact 'my-artifact'",
+                action=ACTION_UPLOAD,
+                with_args={"name": "my-artifact", "path": "foo/bar"},
+            )
+        )
+
+    def test_download(self):
+        artifact = Artifact(name="my-artifact", path="foo/bar")
+        download_step = artifact.as_download()
+        assert isinstance(download_step, UsesStep)
+        assert vars(download_step) == vars(
+            UsesStep(
+                name=f"Download artifact 'my-artifact'",
+                action=ACTION_DOWNLOAD,
+                with_args={"name": "my-artifact", "path": "foo/bar"},
+            )
+        )
+
+    @pytest.mark.parametrize("if_no_files_found", [None, "error", "warn", "ignore"])
+    def test_if_no_files_found(
+        self, if_no_files_found: Optional[Literal["error", "warn", "ignore"]]
+    ):
+        artifact = Artifact(name="my-artifact", path="foo/bar")
+        if if_no_files_found is None:
+            upload_step = artifact.as_upload()
+        else:
+            upload_step = artifact.as_upload(if_no_files_found=if_no_files_found)
+
+        expected_args = {"name": "my-artifact", "path": "foo/bar"}
+        if if_no_files_found is not None:
+            expected_args["if-no-files-found"] = if_no_files_found
+        assert vars(upload_step) == vars(
+            UsesStep(
+                name=f"Upload artifact 'my-artifact'",
+                action=ACTION_UPLOAD,
+                with_args=expected_args,
+            )
+        )

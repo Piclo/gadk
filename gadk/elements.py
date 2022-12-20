@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Dict, Mapping, Optional, Iterable, List, Union
+from typing import Any, Dict, Literal, Mapping, Optional, Iterable, List, Union
 
 from .constants import ACTION_CHECKOUT, ACTION_DOWNLOAD, ACTION_UPLOAD
 
@@ -219,14 +219,31 @@ class Artifact:
         self._name: str = name
         self.path: str = path
 
-    def as_upload(self) -> UsesStep:
-        return UsesStep(
-            action=ACTION_UPLOAD, with_args={"name": self._name, "path": self.path}
-        )
+    def as_upload(
+        self,
+        step_name: Optional[str] = None,
+        *,
+        if_no_files_found: Optional[Literal["error", "warn", "ignore"]] = None,
+        **kwargs,
+    ) -> UsesStep:
+        args = {"name": self._name, "path": self.path}
+        if if_no_files_found is not None:
+            args["if-no-files-found"] = if_no_files_found
 
-    def as_download(self) -> UsesStep:
+        if step_name is None:
+            step_name = f"Upload artifact '{self._name}'"
+
+        return UsesStep(name=step_name, action=ACTION_UPLOAD, with_args=args, **kwargs)
+
+    def as_download(self, step_name: Optional[str] = None, **kwargs) -> UsesStep:
+        if step_name is None:
+            step_name = f"Download artifact '{self._name}'"
+
         return UsesStep(
-            action=ACTION_DOWNLOAD, with_args={"name": self._name, "path": self.path}
+            name=step_name,
+            action=ACTION_DOWNLOAD,
+            with_args={"name": self._name, "path": self.path},
+            **kwargs,
         )
 
 
