@@ -235,14 +235,21 @@ class Artifact:
 
         return UsesStep(name=step_name, action=ACTION_UPLOAD, with_args=args, **kwargs)
 
-    def as_download(self, step_name: Optional[str] = None, **kwargs) -> UsesStep:
+    def as_download(
+        self,
+        step_name: Optional[str] = None,
+        dest_path: Optional[str] = None,
+        **kwargs,
+    ) -> UsesStep:
         if step_name is None:
             step_name = f"Download artifact '{self._name}'"
+
+        path = dest_path if dest_path is not None else self.path
 
         return UsesStep(
             name=step_name,
             action=ACTION_DOWNLOAD,
-            with_args={"name": self._name, "path": self.path},
+            with_args={"name": self._name, "path": path},
             **kwargs,
         )
 

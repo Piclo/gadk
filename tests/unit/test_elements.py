@@ -334,6 +334,18 @@ class TestArtifact:
             )
         )
 
+    def test_download_dest_path(self):
+        artifact = Artifact(name="my-artifact", path="foo/bar")
+        download_step = artifact.as_download(dest_path="baz")
+        assert isinstance(download_step, UsesStep)
+        assert vars(download_step) == vars(
+            UsesStep(
+                name=f"Download artifact 'my-artifact'",
+                action=ACTION_DOWNLOAD,
+                with_args={"name": "my-artifact", "path": "baz"},
+            )
+        )
+
     @pytest.mark.parametrize("if_no_files_found", [None, "error", "warn", "ignore"])
     def test_if_no_files_found(
         self, if_no_files_found: Optional[Literal["error", "warn", "ignore"]]
