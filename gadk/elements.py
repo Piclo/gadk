@@ -388,7 +388,7 @@ class Workflow(Yamlable):
         elif "workflow_dispatch" in self._on:
             del self._on["workflow_dispatch"]
         if schedules is not None:
-            self._on["schedule"] = [{"cron": schedule} for schedule in schedules]
+            self._on["schedule"] = [{"cron": f"'{schedule}'"} for schedule in schedules]
         elif "schedule" in self._on:
             del self._on["schedule"]
 
