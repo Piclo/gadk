@@ -1,6 +1,6 @@
 from pathlib import Path
 from textwrap import dedent
-from typing import Literal, Optional, Union
+from typing import List, Literal, Optional, Union
 
 import pytest
 
@@ -271,7 +271,7 @@ class TestCacheStep:
         ],
         ids=["str", "Path"],
     )
-    def test_ctor(self, paths: list[Union[str, Path]]):
+    def test_ctor(self, paths: List[Union[str, Path]]):
         step = CacheStep(
             "Cache the cache directory",
             paths,

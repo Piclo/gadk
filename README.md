@@ -98,7 +98,7 @@ current branch is master. By default this condition is empty to always run the j
 By default this is `ubuntu-latest`.
 * Which steps to run: `Job(steps=[...])` specifies the steps to execute for this job.
 Each step must be a `RunStep` or `UsesStep` instance or subclass thereof. By default `gadk`
-adds a checkout v2 step and prepends it to the list of steps. This is a useful
+adds a checkout step and prepends it to the list of steps. This is a useful
 default for most jobs but can be disabled by specifying `Job(default_checkout=False)`.
 * Which environment variables to expose to the steps of the job: `Job(env={...})` specifies
 additional environment variables. By default no environment variables are specified.
