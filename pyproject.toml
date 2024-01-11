@@ -9,7 +9,7 @@ license = "MIT"
 include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 pyyaml = "^5.4 || ^6.0"
 click = "^7.1.2 || ^8.0.0"
 colorama = "^0.4.3"  # Don't upgrade this further: maintain compatibility with old awscli
