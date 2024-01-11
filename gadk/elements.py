@@ -71,15 +71,16 @@ class Step(Yamlable, ABC):
         step_id: Optional[str] = None,
         condition: str = "",
         env: Optional[Dict[str, str]] = None,
+        continue_on_error: Optional[bool] = None,
     ) -> None:
         super().__init__()
         self._name: Optional[str] = name
         self._id: Optional[str] = step_id
         self._env: Dict[str, str] = env or {}
         self._if: str = condition or ""
+        self._continue_on_error = continue_on_error
         # TODO: add later
         # self._id
-        # self._continue_on_error
         # self._timeout_in_minutes
 
     def __repr__(self):
@@ -105,6 +106,8 @@ class Step(Yamlable, ABC):
             from .utils import env_vars_to_yaml
 
             step["env"] = env_vars_to_yaml(self._env)
+        if self._continue_on_error is not None:
+            step["continue-on-error"] = self._continue_on_error
         return step
 
     @abstractmethod

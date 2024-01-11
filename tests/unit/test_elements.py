@@ -1,6 +1,6 @@
 from pathlib import Path
 from textwrap import dedent
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Optional, Type, Union
 
 import pytest
 
@@ -247,6 +247,18 @@ class TestStep:
         yaml = step.to_yaml()
         assert "id" in yaml
         assert yaml["id"] == "foobar"
+
+    @pytest.mark.parametrize("continue_on_error", [None, True, False])
+    def test_continue_on_error(
+        self, step_cls: Type[Step], step_args, step_kwargs, continue_on_error: bool
+    ):
+        step = step_cls(*step_args, continue_on_error=continue_on_error, **step_kwargs)
+        yaml = step.to_yaml()
+        if continue_on_error is None:
+            assert "continue-on-error" not in yaml
+        else:
+            assert "continue-on-error" in yaml
+            assert yaml["continue-on-error"] == continue_on_error
 
 
 class TestRunStep:
