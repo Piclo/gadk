@@ -293,7 +293,7 @@ class TestCacheStep:
         yaml = step.to_yaml()
         assert yaml == {
             "name": "Cache the cache directory",
-            "uses": "actions/cache@v3",
+            "uses": "actions/cache@v4",
             "with": {
                 "path": dedent(
                     """\
@@ -312,7 +312,7 @@ class TestCacheStep:
         yaml = step.to_yaml()
         assert yaml == {
             "name": "Cache dependencies",
-            "uses": "actions/cache@v3",
+            "uses": "actions/cache@v4",
             "with": {
                 "path": "cache-dir",
                 "key": "cache-deps-${{ hashFiles('lockfile1', 'lockfile2') }}",
