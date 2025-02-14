@@ -45,6 +45,16 @@ class TestWorkflow:
             "on": {},
         }
 
+    def test_permissions(self):
+        workflow = Workflow("foo", permissions={"id-token": "write", "contents": "read"})
+        assert workflow.to_yaml() == {
+            "permissions": {
+                "contents": "read",
+                "id-token": "write",
+            },
+            "on": {},
+        }
+
 
 class TestWorkflowOn:
     def test_on_only_push(self):
