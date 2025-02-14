@@ -43,6 +43,8 @@ class Expression(Yamlable):
 
 EnvVars = Mapping[str, Union[Any, Expression]]
 
+Permissions = Mapping[str, Literal["read", "write", "none"]]
+
 
 class On(Yamlable):
     def __init__(
@@ -347,6 +349,7 @@ class Workflow(Yamlable):
         env: Optional[EnvVars] = None,
         concurrency_group: Optional[str] = None,
         cancel_in_progress: Optional[Union[bool, str, Expression]] = None,
+        permissions: Optional[Permissions] = None,
     ) -> None:
         if cancel_in_progress is not None and concurrency_group is None:
             raise ValueError(
@@ -361,6 +364,7 @@ class Workflow(Yamlable):
         self.cancel_in_progress: Optional[
             Union[bool, str, Expression]
         ] = cancel_in_progress
+        self.permissions = permissions
         self._on: Dict[str, Any] = {}
         self.jobs: Dict[str, Job] = {}
 
@@ -413,6 +417,8 @@ class Workflow(Yamlable):
                     if isinstance(self.cancel_in_progress, Yamlable)
                     else self.cancel_in_progress,
                 }
+        if self.permissions:
+            workflow["permissions"] = self.permissions
         workflow["on"] = {
             on_key: on.to_yaml() if isinstance(on, Yamlable) else on
             for on_key, on in self._on.items()
