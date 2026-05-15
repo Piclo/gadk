@@ -185,7 +185,7 @@ class CacheStep(UsesStep):
         paths: Iterable[Union[Path, str]],
         key: str,
         restore_keys: Optional[Iterable[str]] = None,
-        version: str = "v4",
+        version: str = "v5",
         **kwargs,
     ) -> None:
         with_args = {"path": "\n".join(str(path) for path in paths), "key": key}
